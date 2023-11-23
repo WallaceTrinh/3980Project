@@ -12,12 +12,18 @@
 - ./generate build.sh
 ---
 **Run the Program**
-- *NOTE: (IP Address may vary)*
+- __*NOTE: (IP Address may vary)*__
 
 
-- Server side:
+- Server side, to be entered in terminal:
+
+  export MallocNanoZone=0   
   ./chat -a 192.168.0.5 6666
-- Client side:
+
+
+- Client side, to be entered in terminal:
+
+  export MallocNanoZone=0   
 ./chat -c 192.168.0.5 6666
 
 
@@ -25,5 +31,5 @@
 
 
 - To Exit the program
-- - Ctrl + Z
+- - Ctrl + D
 - - - 

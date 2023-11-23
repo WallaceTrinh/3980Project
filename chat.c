@@ -41,16 +41,16 @@ static volatile sig_atomic_t exit_flag = 0;
 int main(int argc, char *argv[])
 {
     struct sockaddr_storage addr;
-    struct sockaddr_storage their_addr;
-    socklen_t               addr_size = sizeof(their_addr);
-    int                     sockfd;         // Socket file descriptor
-    int                     new_fd = -1;    // Declare new_fd at the top, initialized to -1
-    char                   *ip;
-    char                   *port_str;
-    in_port_t               port;
-    pthread_t               send_thread;
-    pthread_t               receive_thread;
-    int                     mode = 0;    // 0 for server, 1 for client
+    struct sockaddr_storage client_addr;
+    socklen_t               addr_size = sizeof(client_addr);
+    int                     sockfd    = 0;    // Socket file descriptor
+                                              //    int                     new_fd    = -1;    // Declare new_fd at the top, initialized to -1
+    char     *ip;
+    char     *port_str;
+    in_port_t port;
+    pthread_t send_thread;
+    pthread_t receive_thread;
+    int       mode = 0;    // 0 for server, 1 for client
 
     if(argc != 4)
     {
@@ -81,19 +81,20 @@ int main(int argc, char *argv[])
 
     if(mode == 0)
     {    // Server mode
+        int client_fd;
         socket_bind(sockfd, &addr, port);
         listen(sockfd, MAX_CONNECTIONS);
         printf("Server listening on %s:%d\n", ip, port);
 
-        new_fd = accept(sockfd, (struct sockaddr *)&their_addr, &addr_size);
-        if(new_fd == -1)
+        client_fd = accept(sockfd, (struct sockaddr *)&client_addr, &addr_size);
+        if(client_fd == -1)
         {
             perror("accept");
             exit(EXIT_FAILURE);
         }
 
         socket_close(sockfd);
-        sockfd = new_fd;
+        sockfd = client_fd;
     }
     else
     {    // Client mode
