@@ -320,8 +320,8 @@ static void setup_signal_handler(void)
     #pragma clang diagnostic pop
 #endif
 
-    sa.sa_flags   = 0;                 // Use default signal handling flags
-    sigemptyset(&sa.sa_mask);          // Initialize signal mask
+    sa.sa_flags = 0;             // Use default signal handling flags
+    sigemptyset(&sa.sa_mask);    // Initialize signal mask
 
     if(sigaction(SIGINT, &sa, NULL) == -1)
     {
