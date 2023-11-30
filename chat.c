@@ -289,7 +289,7 @@ static void *handle_receive(void *arg)
         if(num_bytes > 0)
         {
             buffer[num_bytes] = '\0';
-            printf("Received: %s\n", buffer);    // testing with \n
+            printf("Received: %s", buffer);    // testing with \n
         }
         else if(num_bytes == 0)
         {
