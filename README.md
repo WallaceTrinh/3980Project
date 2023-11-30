@@ -2,13 +2,13 @@
 - May need to chmod first:
 - - chmod u+x generate-flags.sh
 - - chmod u+x generate-cmakelists.sh
-- - chmod u+x change-compiler -c clang OR change-compiler -c gcc
+- - chmod u+x change-compiler.sh -c clang OR change-compiler.sh -c gcc
 - - chmod u+x build.sh
 
 
 - ./generate flags.sh
 - ./generate cmakelists.sh
-- ./change-compiler -c clang OR ./change-compiler -c gcc
+- ./change-compiler.sh -c clang OR ./change-compiler.sh -c gcc
 - ./build.sh
 ---
 **Run the Program**
