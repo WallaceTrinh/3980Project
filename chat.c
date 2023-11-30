@@ -14,10 +14,10 @@
 #define MAX_CONNECTIONS 1
 // Conditional SOCK_CLOEXEC for compatibility
 #ifndef SOCK_CLOEXEC
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-macros"
-#define SOCK_CLOEXEC 0
-#pragma GCC diagnostic pop
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wunused-macros"
+    #define SOCK_CLOEXEC 0
+    #pragma GCC diagnostic pop
 #endif
 // Function Declarations
 static void      setup_signal_handler(void);
@@ -33,6 +33,7 @@ static void     *handle_receive(void *arg);
 // Global variable to handle ext upon receiving SIGINT
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
 static volatile sig_atomic_t exit_flag = 0;
+
 int main(int argc, char *argv[])
 {
     struct sockaddr_storage addr;
@@ -98,6 +99,7 @@ int main(int argc, char *argv[])
     socket_close(sockfd);
     return EXIT_SUCCESS;
 }
+
 // Parses the port number from string and checks for errors
 static in_port_t parse_in_port_t(const char *str)
 {
@@ -112,6 +114,7 @@ static in_port_t parse_in_port_t(const char *str)
     }
     return (in_port_t)parsed_value;
 }
+
 // Converts the IP address string to network address
 static void convert_address(const char *address, struct sockaddr_storage *addr)
 {
@@ -130,6 +133,7 @@ static void convert_address(const char *address, struct sockaddr_storage *addr)
         exit(EXIT_FAILURE);
     }
 }
+
 // Creates a socket with given domain
 static int socket_create(int domain)
 {
@@ -142,6 +146,7 @@ static int socket_create(int domain)
     }
     return sockfd;
 }
+
 // Binds the socket to a specified address and port
 static void socket_bind(int sockfd, struct sockaddr_storage *addr, in_port_t port)
 {
@@ -164,6 +169,7 @@ static void socket_bind(int sockfd, struct sockaddr_storage *addr, in_port_t por
         exit(EXIT_FAILURE);
     }
 }
+
 // Connects the client socket to the server's IP address and port
 static void socket_connect(int sockfd, struct sockaddr_storage *addr, in_port_t port)
 {
@@ -186,6 +192,7 @@ static void socket_connect(int sockfd, struct sockaddr_storage *addr, in_port_t 
         exit(EXIT_FAILURE);
     }
 }
+
 // Closes the given socket
 static void socket_close(int sockfd)
 {
@@ -195,6 +202,7 @@ static void socket_close(int sockfd)
         exit(EXIT_FAILURE);
     }
 }
+
 // Handles sending messages to the other client
 static void *handle_send(void *arg)
 {
@@ -229,6 +237,7 @@ static void *handle_send(void *arg)
     }
     return NULL;
 }
+
 // static void *handle_send(void *arg)
 //{
 //     int const *sock_fd = (int *)arg;
@@ -260,7 +269,7 @@ static void *handle_receive(void *arg)
         if(num_bytes > 0)
         {
             buffer[num_bytes] = '\0';
-            printf("Received: %s\n", buffer); //testing with \n
+            printf("Received: %s", buffer);    // testing with \n
         }
         else if(num_bytes == 0)
         {
@@ -275,18 +284,19 @@ static void *handle_receive(void *arg)
     }
     return NULL;
 }
+
 // Sets up the handler for SIGINT signal for shutdown
 static void setup_signal_handler(void)
 {
     struct sigaction sa;
     memset(&sa, 0, sizeof(sa));
 #if defined(__clang__)
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdisabled-macro-expansion"
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wdisabled-macro-expansion"
 #endif
     sa.sa_handler = sigint_handler;    // Assign signal handler function
 #if defined(__clang__)
-#pragma clang diagnostic pop
+    #pragma clang diagnostic pop
 #endif
     sa.sa_flags = 0;             // Use default signal handling flags
     sigemptyset(&sa.sa_mask);    // Initialize signal mask
@@ -296,6 +306,7 @@ static void setup_signal_handler(void)
         exit(EXIT_FAILURE);
     }
 }
+
 // Handler for SIGINT signal
 static void sigint_handler(int signum)
 {
