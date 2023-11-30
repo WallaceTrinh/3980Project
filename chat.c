@@ -289,17 +289,13 @@ static void *handle_receive(void *arg)
         {
             size_t len = strlen(message);
 
-            // Remove newline character if present
-            if(len > 0 && message[len - 1] == '\n')
-            {
-                message[len - 1] = '\0';
-                len--;
-            }
-
             if(len > 0)
             {
+                message[len - 1] = '\0';
                 if(send(*sock_fd, message, len, 0) == -1)
                 {
+                    //                    message[len - 1] = '\0';
+                    //                    len--;
                     perror("send failed");
                     break;
                 }
