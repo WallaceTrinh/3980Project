@@ -280,65 +280,29 @@ static void *handle_send(void *arg)
 
 static void *handle_receive(void *arg)
 {
-    int const *sock_fd = (int *)arg;
-    char       message[BUFFER_SIZE];
+    int const *sock_fd = (int *)arg;    // Cast the argument back to the appropriate type
+    char       buffer[BUFFER_SIZE];
 
     while(!exit_flag)
     {
-        if(fgets(message, BUFFER_SIZE, stdin) != NULL)
+        ssize_t num_bytes = recv(*sock_fd, buffer, BUFFER_SIZE - 1, 0);    // Scope of num_bytes is reduced to inside the while loop
+        if(num_bytes > 0)
         {
-            size_t len = strlen(message);
-
-            if(len > 0)
-            {
-                message[len - 1] = '\0';
-                if(send(*sock_fd, message, len, 0) == -1)
-                {
-                    //                    message[len - 1] = '\0';
-                    //                    len--;
-                    perror("send failed");
-                    break;
-                }
-            }
+            buffer[num_bytes] = '\0';
+            printf("Received: %s\n", buffer);    // testing with \n
         }
-        else if(feof(stdin))
+        else if(num_bytes == 0)
         {
-            // feof(stdin) returns true on end-of-file (Ctrl+D)
-            printf("Exiting...\n");
-            exit_flag = 1;
-            exit(EXIT_SUCCESS);
+            printf("Connection closed by peer.\n");
+            break;
         }
         else
         {
-            perror("fgets failed");
+            perror("recv failed");
             break;
         }
     }
-
     return NULL;
-    //    int const *sock_fd = (int *)arg;    // Cast the argument back to the appropriate type
-    //    char       buffer[BUFFER_SIZE];
-    //
-    //    while(!exit_flag)
-    //    {
-    //        ssize_t num_bytes = recv(*sock_fd, buffer, BUFFER_SIZE - 1, 0);    // Scope of num_bytes is reduced to inside the while loop
-    //        if(num_bytes > 0)
-    //        {
-    //            buffer[num_bytes] = '\0';
-    //            printf("Received: %s\n", buffer);    // testing with \n
-    //        }
-    //        else if(num_bytes == 0)
-    //        {
-    //            printf("Connection closed by peer.\n");
-    //            break;
-    //        }
-    //        else
-    //        {
-    //            perror("recv failed");
-    //            break;
-    //        }
-    //    }
-    //    return NULL;
 }
 
 // Sets up the handler for SIGINT signal for shutdown
