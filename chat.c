@@ -203,6 +203,35 @@ static void socket_close(int sockfd)
     }
 }
 
+// Testing New Version
+static void *handle_send(void *arg) {
+    int const *sock_fd = (int *)arg;
+    char message[BUFFER_SIZE];
+
+    while (!exit_flag) {
+        if (fgets(message, BUFFER_SIZE, stdin) == NULL) {
+            // Ctrl+D (EOF) pressed, shut down the server
+            printf("\nEOF received, shutting down server...\n");
+            exit_flag = 1;
+            break;
+        }
+
+        if (strlen(message) > 0) {
+            if (send(*sock_fd, message, strlen(message), 0) == -1) {
+                perror("send failed");
+                break;
+            }
+        }
+    }
+
+    // Signal to the main thread to close and clean up
+    pthread_kill(pthread_self(), SIGINT);
+    return NULL;
+}
+
+
+
+// Old Version
 // Handles sending messages to the other client
 static void *handle_send(void *arg)
 {
@@ -238,6 +267,7 @@ static void *handle_send(void *arg)
     return NULL;
 }
 
+// Oldest Version
 // static void *handle_send(void *arg)
 //{
 //     int const *sock_fd = (int *)arg;
