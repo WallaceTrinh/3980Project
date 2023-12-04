@@ -233,39 +233,39 @@ static void *handle_send(void *arg) {
 
 // Old Version
 // Handles sending messages to the other client
-static void *handle_send(void *arg)
-{
-    int const *sock_fd = (int *)arg;
-    char       message[BUFFER_SIZE];
-    while(!exit_flag)
-    {
-        if(fgets(message, BUFFER_SIZE, stdin) != NULL)
-        {
-            if(strlen(message) > 0)
-            {
-                if(send(*sock_fd, message, strlen(message), 0) == -1)
-                {
-                    perror("send failed");
-                    break;
-                }
-            }
-        }
-        else if(feof(stdin))
-        {
-            // feof(stdin) returns true on end-of-file (Ctrl+D)
-            printf("Exiting...\n");
-            exit_flag = 1;
-            exit(EXIT_SUCCESS);
-            //            break;
-        }
-        else
-        {
-            perror("fgets failed");
-            break;
-        }
-    }
-    return NULL;
-}
+//static void *handle_send(void *arg)
+//{
+//    int const *sock_fd = (int *)arg;
+//    char       message[BUFFER_SIZE];
+//    while(!exit_flag)
+//    {
+//        if(fgets(message, BUFFER_SIZE, stdin) != NULL)
+//        {
+//            if(strlen(message) > 0)
+//            {
+//                if(send(*sock_fd, message, strlen(message), 0) == -1)
+//                {
+//                    perror("send failed");
+//                    break;
+//                }
+//            }
+//        }
+//        else if(feof(stdin))
+//        {
+//            // feof(stdin) returns true on end-of-file (Ctrl+D)
+//            printf("Exiting...\n");
+//            exit_flag = 1;
+//            exit(EXIT_SUCCESS);
+//            //            break;
+//        }
+//        else
+//        {
+//            perror("fgets failed");
+//            break;
+//        }
+//    }
+//    return NULL;
+//}
 
 // Oldest Version
 // static void *handle_send(void *arg)
