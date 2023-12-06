@@ -8,7 +8,7 @@
 - chmod u+x change-compiler.sh
 - chmod u+x build.sh
 
-***Compile the Program***
+***Compile the Program:***
 - ./generate-flags.sh
 - ./generate-cmakelists.sh
 - ./change-compiler.sh -c clang OR ./change-compiler.sh -c gcc
@@ -36,7 +36,7 @@
 ### Known Problems With Fixes
 - MallocNanoZone=0 encounter
 
-***Fix***
+***Fix:***
 - Open Terminal
 - nano ./zshrc 
 - Add this line: export MallocNanoZone=0
