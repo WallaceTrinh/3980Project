@@ -83,15 +83,21 @@ int main(int argc, char *argv[])
         socket_bind(sockfd, &addr, port);
         listen(sockfd, MAX_CONNECTIONS);
         printf("Server listening on %s:%d\n", ip, port);
+
         client_fd = accept(sockfd, (struct sockaddr *)&client_addr, &addr_size);
-        printf("Client has connected to the chat.\n");
-        if(client_fd == -1)
+
+        // Check if 'accept' was successful before printing the connection message
+        if(client_fd != -1)
+        {
+            printf("Client has connected to the chat.\n");
+            socket_close(sockfd);    // Close the listening socket as it's no longer needed
+            sockfd = client_fd;      // Use the client socket for communication
+        }
+        else
         {
             perror("accept");
             exit(EXIT_FAILURE);
         }
-        socket_close(sockfd);
-        sockfd = client_fd;
     }
     else
     {    // Client mode
@@ -107,12 +113,11 @@ int main(int argc, char *argv[])
     pthread_join(send_thread, NULL);
     pthread_join(receive_thread, NULL);
 
-    if(sockfd != -1)
+    if(exit_flag)
     {
-        socket_close(sockfd);
+        // The exit flag is set, so exit the client process
+        exit(EXIT_SUCCESS);
     }
-
-    return EXIT_SUCCESS;
 }
 
 // Parses the port number from string and checks for errors
@@ -249,7 +254,7 @@ static void *handle_send(void *arg)
 
 static void *handle_receive(void *arg)
 {
-    int *sock_fd = (int *)arg;    // Changed to int* instead of const int*
+    int *sock_fd = (int *)arg;
     char buffer[BUFFER_SIZE];
 
     while(!exit_flag)
@@ -257,6 +262,7 @@ static void *handle_receive(void *arg)
         ssize_t num_bytes = recv(*sock_fd, buffer, BUFFER_SIZE - 1, 0);
         if(num_bytes <= 0)
         {
+            // Either an error occurred, or the server closed the connection
             exit_flag = 1;
             break;
         }
@@ -264,6 +270,7 @@ static void *handle_receive(void *arg)
         buffer[num_bytes] = '\0';
         printf("Received: %s", buffer);
 
+        // Check for the server shutdown message
         if(strcmp(buffer, "SERVER_SHUTDOWN\n") == 0)
         {
             printf("Server has shutdown. Exiting client.\n");
@@ -272,13 +279,15 @@ static void *handle_receive(void *arg)
         }
     }
 
-    // Close the socket and exit the thread
+    // Close the socket and exit the client
     if(*sock_fd != -1)
     {
         socket_close(*sock_fd);
         *sock_fd = -1;
     }
 
+    // Ensure the client exits completely
+    exit(EXIT_SUCCESS);
     return NULL;
 }
 
