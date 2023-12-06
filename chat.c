@@ -84,6 +84,7 @@ int main(int argc, char *argv[])
         listen(sockfd, MAX_CONNECTIONS);
         printf("Server listening on %s:%d\n", ip, port);
         client_fd = accept(sockfd, (struct sockaddr *)&client_addr, &addr_size);
+        printf("Client has connected to the chat.\n");
         if(client_fd == -1)
         {
             perror("accept");
@@ -99,8 +100,9 @@ int main(int argc, char *argv[])
     }
 
     setup_signal_handler();
+
     pthread_create(&send_thread, NULL, handle_send, &sockfd);
-    pthread_create(&receive_thread, NULL, handle_receive, &sockfd);
+    pthread_create(&receive_thread, NULL, handle_receive, (void *)&sockfd);
 
     pthread_join(send_thread, NULL);
     pthread_join(receive_thread, NULL);
@@ -221,7 +223,7 @@ static void *handle_send(void *arg)
 {
     int const  *sock_fd = (int *)arg;
     char        message[BUFFER_SIZE];
-    const char *shutdown_msg = "SERVER_SHUTDOWN";
+    const char *shutdown_msg = "SERVER_SHUTDOWN\n";    // Added newline to match the client's expected message
 
     while(!exit_flag)
     {
@@ -229,7 +231,6 @@ static void *handle_send(void *arg)
         {
             printf("\nEOF received, shutting down server...\n");
             exit_flag = 1;
-            // Send a shutdown message to the client
             send(*sock_fd, shutdown_msg, strlen(shutdown_msg), 0);
             break;
         }
@@ -246,120 +247,40 @@ static void *handle_send(void *arg)
     return NULL;
 }
 
-// Old Version
-// Handles sending messages to the other client
-// static void *handle_send(void *arg)
-//{
-//    int const *sock_fd = (int *)arg;
-//    char       message[BUFFER_SIZE];
-//    while(!exit_flag)
-//    {
-//        if(fgets(message, BUFFER_SIZE, stdin) != NULL)
-//        {
-//            if(strlen(message) > 0)
-//            {
-//                if(send(*sock_fd, message, strlen(message), 0) == -1)
-//                {
-//                    perror("send failed");
-//                    break;
-//                }
-//            }
-//        }
-//        else if(feof(stdin))
-//        {
-//            // feof(stdin) returns true on end-of-file (Ctrl+D)
-//            printf("Exiting...\n");
-//            exit_flag = 1;
-//            exit(EXIT_SUCCESS);
-//            //            break;
-//        }
-//        else
-//        {
-//            perror("fgets failed");
-//            break;
-//        }
-//    }
-//    return NULL;
-//}
-
-// Oldest Version
-// static void *handle_send(void *arg)
-//{
-//     int const *sock_fd = (int *)arg;
-//     char       message[BUFFER_SIZE];
-//
-//     while(!exit_flag)
-//     {
-//         if(fgets(message, BUFFER_SIZE, stdin) != NULL)
-//         {
-//             if(strlen(message) > 0)
-//             {
-//                 if(send(*sock_fd, message, strlen(message), 0) == -1)
-//                 {
-//                     perror("send failed");
-//                     break;
-//                 }
-//             }
-//         }
-//     }
-//     return NULL;
-// }
-
-// New Version
 static void *handle_receive(void *arg)
 {
-    int const *sock_fd = (int *)arg;
-    char       buffer[BUFFER_SIZE];
+    int *sock_fd = (int *)arg;    // Changed to int* instead of const int*
+    char buffer[BUFFER_SIZE];
 
     while(!exit_flag)
     {
         ssize_t num_bytes = recv(*sock_fd, buffer, BUFFER_SIZE - 1, 0);
         if(num_bytes <= 0)
         {
-            exit_flag = 1;    // Set exit flag if connection is closed or an error occurred
+            exit_flag = 1;
             break;
         }
 
         buffer[num_bytes] = '\0';
         printf("Received: %s", buffer);
 
-        // Handle server shutdown message
-        if(strcmp(buffer, "SERVER_SHUTDOWN") == 0)
+        if(strcmp(buffer, "SERVER_SHUTDOWN\n") == 0)
         {
-            printf("Server has shutdown.\n");
+            printf("Server has shutdown. Exiting client.\n");
             exit_flag = 1;
             break;
         }
     }
+
+    // Close the socket and exit the thread
+    if(*sock_fd != -1)
+    {
+        socket_close(*sock_fd);
+        *sock_fd = -1;
+    }
+
     return NULL;
 }
-
-// Old Version
-// static void *handle_receive(void *arg)
-//{
-//    int const *sock_fd = (int *)arg;    // Cast the argument back to the appropriate type
-//    char       buffer[BUFFER_SIZE];
-//    while(!exit_flag)
-//    {
-//        ssize_t num_bytes = recv(*sock_fd, buffer, BUFFER_SIZE - 1, 0);    // Scope of num_bytes is reduced to inside the while loop
-//        if(num_bytes > 0)
-//        {
-//            buffer[num_bytes] = '\0';
-//            printf("Received: %s", buffer);    // testing with \n
-//        }
-//        else if(num_bytes == 0)
-//        {
-//            printf("Connection closed by peer.\n");
-//            break;
-//        }
-//        else
-//        {
-//            perror("recv failed");
-//            break;
-//        }
-//    }
-//    return NULL;
-//}
 
 // Sets up the handler for SIGINT signal for shutdown
 static void setup_signal_handler(void)
