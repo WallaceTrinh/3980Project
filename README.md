@@ -1,4 +1,6 @@
-**To Initialize the Program**
+# Chat Program
+
+## To Initialize the Program
 
 ***May need to chmod first:***
 - chmod u+x generate-flags.sh
@@ -12,7 +14,7 @@
 - ./change-compiler.sh -c clang OR ./change-compiler.sh -c gcc
 - ./build.sh
 ---
-**Run the Program**
+### Run the Program
 - __*NOTE: (IP Address may vary)*__
 
 
@@ -31,7 +33,7 @@
 ***To Exit the program***
 - Ctrl + D
 - - - 
-**Known Problems With Fixes**
+### Known Problems With Fixes
 - MallocNanoZone=0 encounter
 
 ***Fix***
@@ -40,7 +42,7 @@
 - Add this line: export MallocNanoZone=0
 - - - 
 
-**Authors**
+### Authors
 - Wallace Trinh @ https://github.com/WallaceTrinh
 - Jack Luo @ https://github.com/LzhJack
 - - - 
