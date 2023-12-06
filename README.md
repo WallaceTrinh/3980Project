@@ -1,5 +1,6 @@
 # Chat Program
 
+---
 ## To Initialize the Program
 
 ***May need to chmod first:***
