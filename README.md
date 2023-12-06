@@ -28,9 +28,8 @@
 
 - After, start typing on either side.
 
-
-- To Exit the program
-- - Ctrl + D
+***To Exit the program***
+- Ctrl + D
 - - - 
 **Known Problems With Fixes**
 - MallocNanoZone=0 encounter
